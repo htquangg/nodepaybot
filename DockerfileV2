@@ -1,0 +1,35 @@
+FROM debian:11-slim
+
+WORKDIR /app
+
+# Install necessary packages then clean up to reduce image size
+RUN apt update && \
+    apt upgrade -y && \
+    apt install -qqy \
+    curl \
+    wget \
+    git \
+    chromium \
+    chromium-driver \
+    python3 \
+    python3-pip \
+    python3-requests \
+    python3-selenium \
+    coreutils \
+    bash && \
+    apt autoremove --purge -y && \
+    apt clean && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+
+# Install Python packages
+RUN pip3 install -r requirements.txt
+
+# Copy the Python script
+COPY main_v2.py .
+COPY proxy.txt .
+COPY data.txt .
+
+# Run the Python script
+ENTRYPOINT [ "python3", "/app/main_v2.py" ]
